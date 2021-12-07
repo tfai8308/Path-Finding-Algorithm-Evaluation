@@ -1,16 +1,23 @@
-﻿#include<iostream>
+#include<iostream>
 #include<vector>
 #include<algorithm>
 #include<cstdlib>
 #include<ctime>
+#include<random>
+
 using namespace std;
+
+int randomInt(mt19937& randomGenerator, int min, int max) {
+	uniform_int_distribution<int> distance(min, max);
+	return distance(randomGenerator);
+}
 
 class Graph
 {
 private:
 	vector<vector<pair<int, int>>> graph;
 public:
-	void createRandomEdge(int V, int E);
+	void createRandomEdge(mt19937& randomGenerator, int V, int E);
 	bool isEdge(int from, int to);
 	int getWeight(int from, int to);
 	vector<int> getAdjacent(int vertex);
@@ -61,14 +68,22 @@ void Graph::printGraph()
 			cout << it->first << "(" << it->second << ")";
 		}
 	}
+
+	// for(int i = 1; i < graph.size(); i++) {
+	// 	cout << i << " - ";
+	// 	for(int j = 0; j < graph[i].size(); j++) {
+	// 		cout << graph[i][j].first << "(" << graph[i][j].second << ") ";
+	// 	}
+	// 	cout << endl;
+	// }
 }
 
-void Graph::createRandomEdge(int V, int E) {
+void Graph::createRandomEdge(mt19937& randomGenerator, int V, int E) {
 	graph.resize(V+1);
 	int count = 0;
 	// construct random weighted graph
 	for (int i = 0; i < E;) {
-		int from = 1 + rand() % V, to = 1 + rand() % V, weight = 1 + rand() % 10;
+		int from = randomInt(randomGenerator, 1, V), to = randomInt(randomGenerator, 1, V), weight = randomInt(randomGenerator, 1, 10);
 		//cout << from << " " << to << " " << weight << endl;
 		
 		//check if same edge exists
@@ -107,23 +122,26 @@ void Graph::createRandomEdge(int V, int E) {
 */
 }
 
+
 int main()
 {
 	//insert number of vertex
-	int vertex;
+	long long vertex;
 	srand(time(NULL));
+
+	mt19937 randomGenerator(time(NULL));
 
 	cout << "Input number of vertices: ";
 	cin >> vertex;
 
 	//randomly assign total number of edges
-	int edge_max = (vertex * (vertex - 1));
-	int edge_min = vertex - 1;
+	long long edge_max = (vertex * (vertex - 1));
+	long long edge_min = vertex - 1;
 	int edge = edge_min + rand() % (edge_max+1 - edge_min);
 	cout << "\nThe graph has " << vertex << " vertices.";
 	cout << "\nThe graph has " << edge << " edges." << endl;
 
 	Graph g;
-	g.createRandomEdge(vertex, edge);
+	g.createRandomEdge(randomGenerator, vertex, edge);
 	g.printGraph();
 }
