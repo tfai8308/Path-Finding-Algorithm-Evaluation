@@ -5,6 +5,7 @@
 #include<stack>
 #include<set>
 #include<random>
+#include<algorithm>
 
 using namespace std;
 
@@ -63,26 +64,46 @@ void Graph::printGraph()
 		cout << endl;
 	}
 }
-void Graph::connectGraph(int V) {
-	graph.resize(V + 1);
-	for (int from = 1; from <= V; from++) {
-		int weight = 1 + rand() % 10;
-		if (from == V){
+void Graph::connectGraph(mt19937& randomGenerator, int V) {
+	graph.resize(V+1);
+	vector<int> a;
+	for (int i = 1; i < V; ++i) {
+		a.push_back(i);
+	}
+	shuffle(a.begin(), a.end(), randomGenerator);
+	//for (int i = 1; i < a.size(); ++i) cout << a[i] << " ";
+	int from = 1;
+	while (from <= V){
+		int weight = randomInt(randomGenerator, 1, 10);
+		if (from == V) {
 			graph[from].push_back(make_pair(1, weight));
 			break;
 		}
-		int to = from + 1;
-		graph[from].push_back(make_pair(to, weight));
+		int to = a.back();
+		if (from != to) {
+			//no self loop
+			if (!isEdge(to, from)) {
+				if (to == 1) {
+					graph[from].push_back(make_pair(V, weight));
+					a.pop_back();
+					from++;
+				}
+				else {
+					graph[from].push_back(make_pair(to, weight));
+					a.pop_back();
+					from++;
+				}
+			}
+		}
+		else
+			shuffle(a.begin(), a.end(), randomGenerator);
 	}
 }
 void Graph::createRandomEdge(mt19937& randomGenerator, int V, int E) {
-	connectGraph(V);
-	int count = 0;
+	connectGraph(randomGenerator, V);
 	// construct random weighted graph
 	for (int i = 0; i < E - V;) {
 		int from = randomInt(randomGenerator, 1, V), to = randomInt(randomGenerator, 1, V), weight = randomInt(randomGenerator, 1, 10);
-		//cout << from << " " << to << " " << weight << endl;
-
 		//check if same edge exists
 		if (from != to && !isEdge(from, to)) {
 			graph[from].push_back(make_pair(to, weight));
