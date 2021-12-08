@@ -257,7 +257,7 @@ int main()
 	//randomly assign total number of edges
 	long long edge_max = (vertex * (vertex - 1));
 	long long edge_min = vertex - 1;
-	int edge = edge_min + rand() % (edge_max + 1 - edge_min);
+	int edge = randomInt(randomGenerator, edge_min, edge_max);
 	cout << "\nThe graph has " << vertex << " vertices.";
 	cout << "\nThe graph has " << edge << " edges." << endl;
 
