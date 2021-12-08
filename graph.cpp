@@ -20,7 +20,7 @@ private:
 	vector<vector<pair<int, int>>> graph;
 public:
 	void createRandomEdge(mt19937& randomGenerator, int V, int E);
-	void connectGraph(int V);
+	void connectGraph(mt19937& randomGenerator, int V);
 	bool isEdge(int from, int to);
 	int getWeight(int from, int to);
 	vector<int> getAdjacent(int vertex);
@@ -115,7 +115,6 @@ void Graph::createRandomEdge(mt19937& randomGenerator, int V, int E) {
 }
 
 ///////IDDFS Algorithm////////
-
 void getNeighborsDFS(Graph& g, set<int>& visited, stack<pair<int, int>>& vertices, int current, int depth) {
     vector<int> neighbors = g.getAdjacent(current);
     for(int e : neighbors) {
@@ -175,23 +174,23 @@ int findSmallestWeight(set<int>& notVisited, vector<int>& distance) {
 }
 
 bool DijkstraPath(Graph& g, int numGraphVertices, int source, int destination) {
-    //I'll have it display what Dijkstra determines the path from source to destination should be
     set<int> visited;
     set<int> notVisited;
 
     visited.insert(source); //Load the starting vertex
-    for(int i = 0; i < numGraphVertices; i++) {
+    for(int i = 1; i <= numGraphVertices; i++) {
         if(visited.find(i) == visited.end()) {
             notVisited.insert(i); //Load all the other vertices
         }
     }
 
-    vector<int> parent(numGraphVertices, -1); //Load the initial parents
-    vector<int> distance(numGraphVertices, INT_MAX); //Load the initial "best distances"
+    vector<int> parent(numGraphVertices + 1, -1); //Load the initial parents
+    vector<int> distance(numGraphVertices + 1, INT_MAX); //Load the initial "best distances"
     distance[source] = 0; //The source has a distance 0 from itself
 
     //Load the distances from the source to its neighbors
     for(auto iter = notVisited.begin(); iter != notVisited.end(); iter++) {
+		parent[*iter] = source;
         if(g.isEdge(source, *iter)) {
             distance[*iter] = g.getWeight(source, *iter); //A path exists between these vertices
         }
@@ -212,8 +211,8 @@ bool DijkstraPath(Graph& g, int numGraphVertices, int source, int destination) {
         //Reassign the parent of the next vertex back to smallestDist
         for(auto iter = notVisited.begin(); iter != notVisited.end(); iter++) {
             if(g.isEdge(smallestDist, *iter)) {
-                if(distance[smallestDist] + g.getWeight(source, *iter) < distance[*iter]) {
-                    distance[*iter] = distance[smallestDist] + g.getWeight(source, *iter);
+                if(distance[smallestDist] + g.getWeight(smallestDist, *iter) < distance[*iter]) {
+                    distance[*iter] = distance[smallestDist] + g.getWeight(smallestDist, *iter);
                     parent[*iter] = smallestDist;
                 }
             }
@@ -230,7 +229,7 @@ bool DijkstraPath(Graph& g, int numGraphVertices, int source, int destination) {
         reversePath.push_back(start);
     }
 
-    //Reverse the string to go from source -> destination
+    //Reverse the vector to go from source -> destination
     reverse(reversePath.begin(), reversePath.end());
 
     return reversePath[0] == source && reversePath[reversePath.size() - 1] == destination;
@@ -248,13 +247,22 @@ int main()
 	cin >> vertex;
 
 	//randomly assign total number of edges
-	int edge_max = (vertex * (vertex - 1));
-	int edge_min = vertex - 1;
+	long long edge_max = (vertex * (vertex - 1));
+	long long edge_min = vertex - 1;
 	int edge = edge_min + rand() % (edge_max + 1 - edge_min);
 	cout << "\nThe graph has " << vertex << " vertices.";
 	cout << "\nThe graph has " << edge << " edges." << endl;
 
 	Graph g;
 	g.createRandomEdge(randomGenerator, vertex, edge);
-	g.printGraph();
+	//g.printGraph();
+
+	int source = randomInt(randomGenerator, 1, vertex);
+	int destination = randomInt(randomGenerator, 1, vertex);
+	if(IDDFS(g, source, destination, vertex)) {
+		cout << "A path was found with IDDFS" << endl;
+	}	
+	if(DijkstraPath(g, vertex, source, destination)) {
+		cout << "A path was found with Dijkstra's Algorithm" << endl;
+	}
 }
