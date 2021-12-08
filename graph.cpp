@@ -20,7 +20,7 @@ private:
 	vector<vector<pair<int, int>>> graph;
 public:
 	void createRandomEdge(mt19937& randomGenerator, int V, int E);
-	void connectGraph(mt19937& randomGenerator, int V);
+	int connectGraph(mt19937& randomGenerator, int V);
 	bool isEdge(int from, int to);
 	int getWeight(int from, int to);
 	vector<int> getAdjacent(int vertex);
@@ -64,43 +64,51 @@ void Graph::printGraph()
 		cout << endl;
 	}
 }
-void Graph::connectGraph(mt19937& randomGenerator, int V) {
+int Graph::connectGraph(mt19937& randomGenerator, int V) {
 	graph.resize(V+1);
 	vector<int> a;
-	for (int i = 1; i < V; ++i) {
+	for (int i = 1; i < V; ++i)
 		a.push_back(i);
-	}
 	shuffle(a.begin(), a.end(), randomGenerator);
-	//for (int i = 1; i < a.size(); ++i) cout << a[i] << " ";
 	int from = 1;
-	while (from <= V){
-		int weight = randomInt(randomGenerator, 1, 10);
-		if (from == V) {
-			graph[from].push_back(make_pair(1, weight));
-			break;
-		}
-		int to = a.back();
-		if (from != to) {
-			//no self loop
-			if (!isEdge(to, from)) {
-				if (to == 1) {
-					graph[from].push_back(make_pair(V, weight));
-					a.pop_back();
-					from++;
-				}
-				else {
-					graph[from].push_back(make_pair(to, weight));
-					a.pop_back();
-					from++;
-				}
+	int to, weight, count = 0;
+	while (from < V){
+		to = a.back();
+		//no self loop
+		if (isEdge(to, from) || (from == to)) {
+			if (a.size() != 1)
+				swap(a[0], a[a.size() - 1]);
+			else {
+				graph[from].push_back(make_pair(V, weight));
+				count++;
+				from++;
 			}
 		}
-		else
-			shuffle(a.begin(), a.end(), randomGenerator);
+		else{
+			weight = randomInt(randomGenerator, 1, 10);
+			if (to == 1) {
+				graph[from].push_back(make_pair(V, weight));
+				count++;
+				a.pop_back();
+				from++;
+			}
+			else {
+				graph[from].push_back(make_pair(to, weight));
+				count++;
+				a.pop_back();
+				from++;
+			}
+		}
 	}
+	if (from == V) {
+		weight = randomInt(randomGenerator, 1, 10);
+		graph[from].push_back(make_pair(1, weight));
+	}
+	cout << endl;
+	return count;
 }
 void Graph::createRandomEdge(mt19937& randomGenerator, int V, int E) {
-	connectGraph(randomGenerator, V);
+	int edges_left = E - connectGraph(randomGenerator, V);
 	// construct random weighted graph
 	for (int i = 0; i < E - V;) {
 		int from = randomInt(randomGenerator, 1, V), to = randomInt(randomGenerator, 1, V), weight = randomInt(randomGenerator, 1, 10);
