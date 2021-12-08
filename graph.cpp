@@ -2,6 +2,8 @@
 #include<vector>
 #include<cstdlib>
 #include<ctime>
+#include<stack>
+#include<set>
 #include<random>
 
 using namespace std;
@@ -91,6 +93,127 @@ void Graph::createRandomEdge(mt19937& randomGenerator, int V, int E) {
 	}
 }
 
+///////IDDFS Algorithm////////
+
+void getNeighborsDFS(Graph& g, set<int>& visited, stack<pair<int, int>>& vertices, int current, int depth) {
+    vector<int> neighbors = g.getAdjacent(current);
+    for(int e : neighbors) {
+        if(visited.find(e) == visited.end()) {
+            visited.insert(e);
+            vertices.push(make_pair(e, depth + 1)); //Push in the neighbor and a depth one deeper
+        }
+    }
+}
+
+bool DFS(Graph& g, int source, int destination, int maxDepth) {
+    set<int> visited;
+    stack<pair<int, int>> vertices; //Each vertex is also going to store its depth from the source
+
+    int depth = 0;
+    visited.insert(source);
+    vertices.push(make_pair(source, depth));
+
+    while(!vertices.empty()) {
+        pair<int, int> currentVertex = vertices.top();
+        vertices.pop();
+
+        if(currentVertex.first == destination) {
+            return true;
+        }
+
+        if(currentVertex.second < maxDepth) {
+            getNeighborsDFS(g, visited, vertices, currentVertex.first, currentVertex.second);
+        }
+    }
+
+    return false;
+}
+
+bool IDDFS(Graph& g, int source, int destination, int maxDepth) {
+    for(int i = 0; i <= maxDepth; i++) {
+        if(DFS(g, source, destination, i)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+///////Dijkstra's Algorithm////////
+int findSmallestWeight(set<int>& notVisited, vector<int>& distance) {
+    int vertex = -1;
+    int minDist = INT_MAX;
+    for(auto iter = notVisited.begin(); iter != notVisited.end(); iter++) {
+        if(distance[*iter] < minDist) {
+            minDist = distance[*iter];
+            vertex = *iter;
+        }
+    }
+
+    return vertex;
+}
+
+bool DijkstraPath(Graph& g, int numGraphVertices, int source, int destination) {
+    //I'll have it display what Dijkstra determines the path from source to destination should be
+    set<int> visited;
+    set<int> notVisited;
+
+    visited.insert(source); //Load the starting vertex
+    for(int i = 0; i < numGraphVertices; i++) {
+        if(visited.find(i) == visited.end()) {
+            notVisited.insert(i); //Load all the other vertices
+        }
+    }
+
+    vector<int> parent(numGraphVertices, -1); //Load the initial parents
+    vector<int> distance(numGraphVertices, INT_MAX); //Load the initial "best distances"
+    distance[source] = 0; //The source has a distance 0 from itself
+
+    //Load the distances from the source to its neighbors
+    for(auto iter = notVisited.begin(); iter != notVisited.end(); iter++) {
+        if(g.isEdge(source, *iter)) {
+            distance[*iter] = g.getWeight(source, *iter); //A path exists between these vertices
+        }
+        else {
+            distance[*iter] = INT_MAX; //No path
+        }
+    }
+
+    //Now keep processing all the other vertices and relaxing edges
+    while(!notVisited.empty()) {
+        //Get the smallest distance vertex
+        int smallestDist = findSmallestWeight(notVisited, distance);
+        notVisited.erase(smallestDist);
+        visited.insert(smallestDist);
+
+        //Look through all of smallestDist's neighbors and see if taking this path results int a lower cost of travel
+        //If so, reassign the weights to the sum of the current weight + new edge
+        //Reassign the parent of the next vertex back to smallestDist
+        for(auto iter = notVisited.begin(); iter != notVisited.end(); iter++) {
+            if(g.isEdge(smallestDist, *iter)) {
+                if(distance[smallestDist] + g.getWeight(source, *iter) < distance[*iter]) {
+                    distance[*iter] = distance[smallestDist] + g.getWeight(source, *iter);
+                    parent[*iter] = smallestDist;
+                }
+            }
+        }
+    }
+    
+    //By here the algorithm should have calculated all the distances and parents
+    //Start at destination and trace the parents back to the source vertex
+    vector<int> reversePath;
+    reversePath.push_back(destination);
+    int start = destination;
+    while(start != source) {
+        start = parent[start];
+        reversePath.push_back(start);
+    }
+
+    //Reverse the string to go from source -> destination
+    reverse(reversePath.begin(), reversePath.end());
+
+    return reversePath[0] == source && reversePath[reversePath.size() - 1] == destination;
+}
 
 int main()
 {
