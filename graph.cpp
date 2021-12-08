@@ -5,6 +5,7 @@
 #include<stack>
 #include<set>
 #include<random>
+#include<chrono>
 #include<algorithm>
 
 using namespace std;
@@ -257,20 +258,44 @@ int main()
 	//randomly assign total number of edges
 	long long edge_max = (vertex * (vertex - 1));
 	long long edge_min = vertex - 1;
-	int edge = randomInt(randomGenerator, edge_min, edge_max);
+	int edge = edge_min + rand() % (edge_max + 1 - edge_min);
 	cout << "\nThe graph has " << vertex << " vertices.";
 	cout << "\nThe graph has " << edge << " edges." << endl;
 
 	Graph g;
 	g.createRandomEdge(randomGenerator, vertex, edge);
+	
+	//Displays the contents of the graph in adjacency list representation
 	//g.printGraph();
 
 	int source = randomInt(randomGenerator, 1, vertex);
 	int destination = randomInt(randomGenerator, 1, vertex);
+
+	cout << "The source is vertex " << source << "." << endl;
+	cout << "The destination is vertex " << destination << "." << endl;
+	cout << endl;
+
+	auto timeBegin = chrono::high_resolution_clock::now();
 	if(IDDFS(g, source, destination, vertex)) {
-		cout << "A path was found with IDDFS" << endl;
+		cout << "A path was found from vertex " << source << " to vertex " << destination << " with IDDFS";
 	}	
-	if(DijkstraPath(g, vertex, source, destination)) {
-		cout << "A path was found with Dijkstra's Algorithm" << endl;
+	else {
+		cout << "A path was not found with IDDFS?" << endl;
+		exit(1);
 	}
+	auto timeEnd =  chrono::high_resolution_clock::now();
+	auto timeElapsed = chrono::duration_cast<chrono::nanoseconds>(timeEnd - timeBegin);
+	cout << " in " << timeElapsed.count() * 1e-6 << " milliseconds (" << timeElapsed.count() * 1e-9 << " seconds)." << endl;
+	
+	timeBegin = chrono::high_resolution_clock::now();
+	if(DijkstraPath(g, vertex, source, destination)) {
+		cout << "A path was found from vertex " << source << " to vertex " << destination << " with Dijkstra's Algorithm";
+	} 
+	else {
+		cout << "A path was not found with Dijkstra's Algorithm?" << endl;
+		exit(1);
+	}
+	timeEnd =  chrono::high_resolution_clock::now();
+	timeElapsed = chrono::duration_cast<chrono::nanoseconds>(timeEnd - timeBegin);
+	cout << " in " << timeElapsed.count() * 1e-6 << " milliseconds (" << timeElapsed.count() * 1e-9 << " seconds)." << endl;
 }
