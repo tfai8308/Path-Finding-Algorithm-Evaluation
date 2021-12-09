@@ -105,6 +105,7 @@ int Graph::connectGraph(mt19937& randomGenerator, int V) {
 	if (from == V) {
 		weight = randomInt(randomGenerator, 1, 10);
 		graph[from].push_back(make_pair(1, weight));
+		count++;
 	}
 	cout << endl;
 	return count;
