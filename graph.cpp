@@ -256,6 +256,14 @@ int main()
 
 	cout << "Input number of vertices: ";
 	cin >> vertex;
+	
+	//verify input for numbers
+	while(vertex <= 0) {
+		cout << "Enter a positive number of vertices." << endl;
+		cin.clear();
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		cin >> vertex;
+	}
 
 	//randomly assign total number of edges
 	long long edge_max = (vertex * (vertex - 1))/2;
