@@ -212,10 +212,16 @@ bool DijkstraPath(Graph& g, int numGraphVertices, int source, int destination) {
 
     //Now keep processing all the other vertices and relaxing edges
     while(!notVisited.empty()) {
-        //Get the smallest distance vertex
+	//Get the smallest distance vertex
         int smallestDist = findSmallestWeight(notVisited, distance);
         notVisited.erase(smallestDist);
         visited.insert(smallestDist);
+
+	//**In this modified Dijkstra's touching the destination vertex confirms that a path exists from the source vertex
+	//So the code can terminate as soon as this vertex is found
+	if(smallestDist == destination) {
+		return true;
+	}
 
         //Look through all of smallestDist's neighbors and see if taking this path results int a lower cost of travel
         //If so, reassign the weights to the sum of the current weight + new edge
@@ -229,21 +235,8 @@ bool DijkstraPath(Graph& g, int numGraphVertices, int source, int destination) {
             }
         }
     }
-    
-    //By here the algorithm should have calculated all the distances and parents
-    //Start at destination and trace the parents back to the source vertex
-    vector<int> reversePath;
-    reversePath.push_back(destination);
-    int start = destination;
-    while(start != source) {
-        start = parent[start];
-        reversePath.push_back(start);
-    }
 
-    //Reverse the vector to go from source -> destination
-    reverse(reversePath.begin(), reversePath.end());
-
-    return reversePath[0] == source && reversePath[reversePath.size() - 1] == destination;
+    return false;
 }
 
 int main()
