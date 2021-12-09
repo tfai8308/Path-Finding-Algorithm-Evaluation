@@ -111,7 +111,7 @@ int Graph::connectGraph(mt19937& randomGenerator, int V) {
 void Graph::createRandomEdge(mt19937& randomGenerator, int V, int E) {
 	int edges_left = E - connectGraph(randomGenerator, V);
 	// construct random weighted graph
-	for (int i = 0; i < E - V;) {
+	for (int i = 0; i < edges_left;) {
 		int from = randomInt(randomGenerator, 1, V), to = randomInt(randomGenerator, 1, V), weight = randomInt(randomGenerator, 1, 10);
 		//check if same edge exists
 		if (from != to && !isEdge(from, to)) {
