@@ -81,7 +81,8 @@ int Graph::connectGraph(mt19937& randomGenerator, int V) {
 				swap(a[0], a[a.size() - 1]);
 			else {
 				graph[from].push_back(make_pair(V, weight));
-				count++;
+				graph[V].push_back(make_pair(from, weight));
+				count+=2;
 				from++;
 			}
 		}
