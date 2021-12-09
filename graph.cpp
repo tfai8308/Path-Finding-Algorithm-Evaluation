@@ -258,7 +258,7 @@ int main()
 	cin >> vertex;
 	
 	//verify input for numbers
-	while(vertex <= 0) {
+	while(!cin || vertex < 0) {
 		cout << "Enter a positive number of vertices." << endl;
 		cin.clear();
 		cin.ignore(numeric_limits<streamsize>::max(), '\n');
