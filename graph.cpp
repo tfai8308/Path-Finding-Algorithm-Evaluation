@@ -65,6 +65,7 @@ void Graph::printGraph()
 		cout << endl;
 	}
 }
+
 int Graph::connectGraph(mt19937& randomGenerator, int V) {
 	graph.resize(V+1);
 	vector<int> a;
@@ -110,10 +111,11 @@ int Graph::connectGraph(mt19937& randomGenerator, int V) {
 	cout << endl;
 	return count;
 }
+
 void Graph::createRandomEdge(mt19937& randomGenerator, int V, int E) {
-	int edges_left = E - connectGraph(randomGenerator, V);
+	int edgesLeft = E - connectGraph(randomGenerator, V);
 	// construct random weighted graph
-	for (int i = 0; i < edges_left;) {
+	for (int i = 0; i < edgesLeft;) {
 		int from = randomInt(randomGenerator, 1, V), to = randomInt(randomGenerator, 1, V), weight = randomInt(randomGenerator, 1, 10);
 		//check if same edge exists
 		if (from != to && !isEdge(from, to)) {
